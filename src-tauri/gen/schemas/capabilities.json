@@ -1,0 +1,1 @@
+{"main-capability":{"identifier":"main-capability","description":"Capabilities for the main window.","local":true,"windows":["main"],"permissions":["core:default","core:window:allow-minimize","core:window:allow-toggle-maximize","core:window:allow-set-fullscreen","core:window:allow-close"]}}

@@ -66,7 +66,8 @@ impl ConfigManager {
     }
 
     pub fn write_remote_cache(&self, cache: &RemoteCache) -> Result<(), String> {
-        write_json_value(&self.remote_cache_path, cache)
+        let value = serde_json::to_value(cache).map_err(|e| e.to_string())?;
+        write_json_value(&self.remote_cache_path, &value)
     }
 
     pub fn effective_config(&self) -> Value {
