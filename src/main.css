@@ -49,25 +49,25 @@ body {
 
 /* Portrait (ALLS-style) */
 .boot-top {
-  height: 32vh;
-  min-height: 200px;
+  height: 34vh;
+  min-height: 240px;
   background: var(--white);
   color: #0a0a0a;
   display: flex;
   align-items: flex-end;
-  padding: 40px 60px;
+  padding: 48px 72px;
   border-bottom: 2px solid #0a0a0a;
 }
 
 .boot-brand {
-  font-size: 1.6rem;
+  font-size: 2rem;
   letter-spacing: 0.45em;
   text-transform: uppercase;
 }
 
 .boot-tag {
-  margin-top: 8px;
-  font-size: 0.9rem;
+  margin-top: 10px;
+  font-size: 1rem;
   letter-spacing: 0.18em;
 }
 
@@ -79,17 +79,17 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px 60px 60px;
+  padding: 56px 72px 72px;
   overflow: hidden;
 }
 
 .boot-arc {
   position: absolute;
-  width: min(70vw, 780px);
+  width: min(70vw, 820px);
   aspect-ratio: 1;
   border-radius: 50%;
   background: var(--white);
-  bottom: -40vw;
+  bottom: -38vw;
   left: 50%;
   transform: translateX(-50%);
   opacity: 0.95;
@@ -98,43 +98,43 @@ body {
 .boot-content {
   position: relative;
   z-index: 1;
-  width: min(720px, 90vw);
+  width: min(820px, 92vw);
   display: grid;
-  gap: 20px;
+  gap: 22px;
   justify-items: center;
   text-align: center;
 }
 
 .logo {
-  width: 180px;
+  width: 220px;
   height: auto;
-  filter: drop-shadow(0 16px 30px rgba(255, 255, 255, 0.25));
+  filter: drop-shadow(0 18px 32px rgba(255, 255, 255, 0.25));
 }
 
 .step-focus {
   display: grid;
-  gap: 6px;
+  gap: 8px;
 }
 
 .step-index {
-  font-size: 0.9rem;
+  font-size: 1rem;
   letter-spacing: 0.3em;
   color: var(--muted);
 }
 
 .step-title {
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   letter-spacing: 0.08em;
 }
 
 .progress {
-  width: min(520px, 85vw);
+  width: min(620px, 85vw);
   display: grid;
-  gap: 8px;
+  gap: 10px;
 }
 
 .progress-track {
-  height: 10px;
+  height: 14px;
   border-radius: 999px;
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.08);
@@ -151,36 +151,36 @@ body {
 .progress-meta {
   display: flex;
   justify-content: space-between;
-  font-size: 0.85rem;
+  font-size: 1rem;
   color: var(--muted);
 }
 
 .boot-error {
-  font-size: 0.85rem;
+  font-size: 1rem;
   color: #ffb4b4;
 }
 
 .boot-done {
-  font-size: 0.85rem;
+  font-size: 1rem;
   color: var(--muted);
   letter-spacing: 0.2em;
 }
 
 @media (max-width: 720px) {
   .boot-top {
-    padding: 24px 24px 30px;
+    padding: 30px 26px 36px;
   }
 
   .boot-bottom {
-    padding: 30px 24px 40px;
+    padding: 36px 26px 46px;
   }
 
   .logo {
-    width: 140px;
+    width: 160px;
   }
 
   .boot-arc {
-    width: 90vw;
+    width: 92vw;
     bottom: -50vw;
   }
 }
@@ -190,7 +190,7 @@ body {
   flex: 1;
   align-items: center;
   justify-content: center;
-  padding: 32px 40px;
+  padding: 40px 56px;
   background: radial-gradient(900px circle at 15% -10%, rgba(255, 255, 255, 0.08), transparent 60%),
     radial-gradient(600px circle at 90% 0%, rgba(255, 255, 255, 0.05), transparent 55%),
     linear-gradient(145deg, #050505, #0f0f0f);
@@ -211,8 +211,8 @@ body {
 .landscape-card {
   position: relative;
   z-index: 1;
-  width: min(860px, 92vw);
-  padding: 32px 40px;
+  width: min(980px, 92vw);
+  padding: 40px 52px;
   border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(10, 10, 10, 0.85);
@@ -229,20 +229,20 @@ body {
 }
 
 .logo-landscape {
-  width: 120px;
+  width: 150px;
   filter: drop-shadow(0 12px 22px rgba(255, 255, 255, 0.2));
 }
 
 .landscape-title {
-  font-size: 1.4rem;
+  font-size: 1.8rem;
   letter-spacing: 0.35em;
   text-transform: uppercase;
   color: var(--white);
 }
 
 .landscape-tag {
-  margin-top: 6px;
-  font-size: 0.85rem;
+  margin-top: 8px;
+  font-size: 1rem;
   letter-spacing: 0.2em;
   color: var(--muted);
 }
@@ -250,10 +250,10 @@ body {
 @media (max-width: 960px) and (orientation: landscape) {
   .landscape-card {
     width: 94vw;
-    padding: 24px;
+    padding: 28px;
   }
 
   .logo-landscape {
-    width: 96px;
+    width: 110px;
   }
 }
