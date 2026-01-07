@@ -155,7 +155,8 @@ pub fn run_startup_flow_cmd(app: AppHandle, state: State<IrisState>) -> Result<S
         });
         push_skip(&mut steps, "检查机台更新", "已中断");
         push_skip(&mut steps, "确认启动配置", "已中断");
-        push_skip(&mut steps, "解密挂载游戏 VHD", "已中断");
+        push_skip(&mut steps, "解密游戏 VHD", "已中断");
+        push_skip(&mut steps, "挂载游戏 VHD", "已中断");
         push_skip(&mut steps, "启动游戏", "已中断");
         return Ok(StartupResult { steps, can_launch: false });
     }
@@ -211,63 +212,65 @@ pub fn run_startup_flow_cmd(app: AppHandle, state: State<IrisState>) -> Result<S
         },
     });
 
+    let decrypt_outcome = decrypt_from_config(&config);
+    let decrypt_outcome = match decrypt_outcome {
+        Ok(outcome) => outcome,
+        Err(err) => {
+            steps.push(StartupStep {
+                name: "解密游戏 VHD".to_string(),
+                status: "error".to_string(),
+                detail: Some(err),
+            });
+            push_skip(&mut steps, "挂载游戏 VHD", "已中断");
+            push_skip(&mut steps, "启动游戏", "已中断");
+            return Ok(StartupResult { steps, can_launch: false });
+        }
+    };
+
+    match decrypt_outcome {
+        DecryptOutcome::Done => steps.push(StartupStep {
+            name: "解密游戏 VHD".to_string(),
+            status: "ok".to_string(),
+            detail: Some("已解密".to_string()),
+        }),
+        DecryptOutcome::Skipped => steps.push(StartupStep {
+            name: "解密游戏 VHD".to_string(),
+            status: "skipped".to_string(),
+            detail: Some("无需解密".to_string()),
+        }),
+    };
+
     let game = match active_game() {
         Ok(game) => game,
         Err(err) => {
             steps.push(StartupStep {
-                name: "解密挂载游戏 VHD".to_string(),
+                name: "挂载游戏 VHD".to_string(),
                 status: "error".to_string(),
                 detail: Some(err),
             });
             push_skip(&mut steps, "启动游戏", "已中断");
             return Ok(StartupResult { steps, can_launch: false });
         }
-    };
-
-    let decrypt_outcome = decrypt_from_config(&config);
-    if let Err(err) = decrypt_outcome {
-        steps.push(StartupStep {
-            name: "解密挂载游戏 VHD".to_string(),
-            status: "error".to_string(),
-            detail: Some(err),
-        });
-        push_skip(&mut steps, "启动游戏", "已中断");
-        return Ok(StartupResult { steps, can_launch: false });
-    }
-    let decrypt_outcome = decrypt_outcome.unwrap();
-
-    let mut mount_detail = match decrypt_outcome {
-        DecryptOutcome::Done => Some("已解密".to_string()),
-        DecryptOutcome::Skipped => None,
     };
 
     if game.launch_mode == LaunchMode::Vhd {
         if let Err(err) = ensure_vhd_mounted(&state, &game) {
             steps.push(StartupStep {
-                name: "解密挂载游戏 VHD".to_string(),
+                name: "挂载游戏 VHD".to_string(),
                 status: "error".to_string(),
                 detail: Some(err),
             });
             push_skip(&mut steps, "启动游戏", "已中断");
             return Ok(StartupResult { steps, can_launch: false });
         }
-        if mount_detail.is_none() {
-            mount_detail = Some("已挂载".to_string());
-        }
         steps.push(StartupStep {
-            name: "解密挂载游戏 VHD".to_string(),
+            name: "挂载游戏 VHD".to_string(),
             status: "ok".to_string(),
-            detail: mount_detail,
-        });
-    } else if matches!(decrypt_outcome, DecryptOutcome::Done) {
-        steps.push(StartupStep {
-            name: "解密挂载游戏 VHD".to_string(),
-            status: "ok".to_string(),
-            detail: mount_detail,
+            detail: Some("已挂载".to_string()),
         });
     } else {
         steps.push(StartupStep {
-            name: "解密挂载游戏 VHD".to_string(),
+            name: "挂载游戏 VHD".to_string(),
             status: "skipped".to_string(),
             detail: Some("无需挂载 VHD".to_string()),
         });

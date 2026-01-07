@@ -47,10 +47,17 @@ body {
   }
 }
 
+.boot-shell.force-portrait .boot-shell-portrait {
+  display: flex;
+}
+
+.boot-shell.force-portrait .boot-shell-landscape {
+  display: none;
+}
+
 /* Portrait (ALLS-style) */
 .boot-top {
-  height: 34vh;
-  min-height: 240px;
+  height: 23.4vh;
   background: var(--white);
   color: #0a0a0a;
   display: flex;
@@ -74,8 +81,9 @@ body {
 .boot-bottom {
   position: relative;
   flex: 1;
+  --arc-size: min(56.1vh, 100vw);
   background: var(--black);
-  color: var(--white);
+  color: #0a0a0a;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -85,24 +93,27 @@ body {
 
 .boot-arc {
   position: absolute;
-  width: min(70vw, 820px);
+  width: var(--arc-size);
   aspect-ratio: 1;
   border-radius: 50%;
   background: var(--white);
-  bottom: -38vw;
+  bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  opacity: 0.95;
+  opacity: 1;
 }
 
 .boot-content {
-  position: relative;
+  position: absolute;
   z-index: 1;
-  width: min(820px, 92vw);
+  width: min(620px, 90vw);
   display: grid;
-  gap: 16px;
+  gap: 14px;
   justify-items: center;
   text-align: center;
+  left: 50%;
+  top: calc(100% - (var(--arc-size) / 2) + 12px);
+  transform: translate(-50%, -50%);
 }
 
 .logo {
@@ -133,6 +144,40 @@ body {
   display: grid;
   gap: 8px;
   margin-top: -2px;
+}
+
+.boot-shell-portrait .step-index {
+  color: #0a0a0a;
+}
+
+.progress-portrait {
+  width: min(520px, 84vw);
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.boot-shell-portrait .progress-meta {
+  color: #0a0a0a;
+}
+
+.boot-shell-portrait .progress-track {
+  border: 1px solid rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.boot-shell-portrait .progress-track::after {
+  background: linear-gradient(
+    110deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.2) 45%,
+    transparent 70%
+  );
+  opacity: 0.35;
+}
+
+.boot-shell-portrait .progress-fill {
+  background: linear-gradient(90deg, #0a0a0a 0%, #2b2b2b 60%, #0a0a0a 100%);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
 }
 
 .progress-track {
@@ -196,6 +241,14 @@ body {
   letter-spacing: 0.2em;
 }
 
+.boot-shell-portrait .boot-error {
+  color: #b00020;
+}
+
+.boot-shell-portrait .boot-done {
+  color: rgba(0, 0, 0, 0.55);
+}
+
 @media (max-width: 720px) {
   .boot-top {
     padding: 30px 26px 36px;
@@ -203,15 +256,15 @@ body {
 
   .boot-bottom {
     padding: 36px 26px 46px;
+    --arc-size: min(56.1vh, 92vw);
   }
 
   .logo {
     width: 160px;
   }
 
-  .boot-arc {
-    width: 92vw;
-    bottom: -50vw;
+  .progress-portrait {
+    width: min(420px, 88vw);
   }
 }
 

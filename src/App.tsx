@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useTranslation } from "react-i18next";
 import { invokeCmd } from "./api/tauri";
@@ -16,7 +16,8 @@ const STEP_KEYS = [
   "steps.auth",
   "steps.update",
   "steps.confirm",
-  "steps.vhd",
+  "steps.decrypt",
+  "steps.mount",
   "steps.launch"
 ];
 
@@ -191,11 +192,16 @@ export default function App() {
     }
     return Math.round((currentIndex / (steps.length - 1)) * 100);
   }, [currentIndex, steps.length]);
+  const orientationOverride =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("orientation")
+      : null;
+  const forcePortrait = orientationOverride !== "landscape";
   const currentStepLabel = currentStep ? t(currentStep.key) : statusText;
   const currentDetail = currentStep?.detail ?? (booting ? currentStepLabel : statusText);
 
   return (
-    <div className="boot-shell">
+    <div className={`boot-shell${forcePortrait ? " force-portrait" : ""}`}>
       <div className="boot-shell-portrait">
         <div className="boot-top">
           <div>
@@ -214,7 +220,7 @@ export default function App() {
               <div className="step-title">{currentStepLabel}</div>
             </div>
 
-            <div className="progress">
+            <div className="progress progress-portrait">
               <div className="progress-track">
                 <div className="progress-fill" style={{ width: `${progressPercent}%` }} />
               </div>
@@ -262,3 +268,4 @@ export default function App() {
     </div>
   );
 }
+

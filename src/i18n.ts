@@ -24,7 +24,8 @@ i18n
             auth: "验证机台授权状态",
             update: "检查机台更新",
             confirm: "确认启动配置",
-            vhd: "解密挂载游戏 VHD",
+            decrypt: "解密游戏 VHD",
+            mount: "挂载游戏 VHD",
             launch: "启动游戏"
           },
           status: {
@@ -48,7 +49,8 @@ i18n
             auth: "Verify machine authorization",
             update: "Check machine updates",
             confirm: "Confirm launch config",
-            vhd: "Decrypt and mount game VHD",
+            decrypt: "Decrypt game VHD",
+            mount: "Mount game VHD",
             launch: "Launch game"
           },
           status: {
