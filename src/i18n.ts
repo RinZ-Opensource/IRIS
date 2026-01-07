@@ -18,7 +18,7 @@ i18n
         translation: {
           brand: {
             title: "IRIS",
-            tag: "RINZ ARCADE SYSTEM"
+            tag: "Interactive RinZ Interface System"
           },
           steps: {
             auth: "验证机台授权状态",
@@ -42,7 +42,7 @@ i18n
         translation: {
           brand: {
             title: "IRIS",
-            tag: "RINZ ARCADE SYSTEM"
+            tag: "Interactive RinZ Interface System"
           },
           steps: {
             auth: "Verify machine authorization",
