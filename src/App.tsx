@@ -191,6 +191,8 @@ export default function App() {
     }
     return Math.round((currentIndex / (steps.length - 1)) * 100);
   }, [currentIndex, steps.length]);
+  const currentStepLabel = currentStep ? t(currentStep.key) : statusText;
+  const currentDetail = currentStep?.detail ?? (booting ? currentStepLabel : statusText);
 
   return (
     <div className="boot-shell">
@@ -209,9 +211,7 @@ export default function App() {
 
             <div className="step-focus">
               <div className="step-index">{t("status.stepLabel", { index: currentIndex + 1 })}</div>
-              <div className="step-title">
-                {currentStep ? t(currentStep.key) : statusText}
-              </div>
+              <div className="step-title">{currentStepLabel}</div>
             </div>
 
             <div className="progress">
@@ -220,7 +220,7 @@ export default function App() {
               </div>
               <div className="progress-meta">
                 <span>{progressPercent}%</span>
-                <span>{currentStep?.detail ?? statusText}</span>
+                <span>{currentDetail}</span>
               </div>
             </div>
 
@@ -242,9 +242,7 @@ export default function App() {
 
           <div className="step-focus">
             <div className="step-index">{t("status.stepLabel", { index: currentIndex + 1 })}</div>
-            <div className="step-title">
-              {currentStep ? t(currentStep.key) : statusText}
-            </div>
+            <div className="step-title">{currentStepLabel}</div>
           </div>
 
           <div className="progress">
@@ -253,7 +251,7 @@ export default function App() {
             </div>
             <div className="progress-meta">
               <span>{progressPercent}%</span>
-              <span>{currentStep?.detail ?? statusText}</span>
+              <span>{currentDetail}</span>
             </div>
           </div>
 

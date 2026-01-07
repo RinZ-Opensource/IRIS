@@ -251,6 +251,7 @@ body {
   gap: 18px;
   text-align: left;
   justify-items: stretch;
+  color: var(--white);
 }
 
 .landscape-brand-row {
