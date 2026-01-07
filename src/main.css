@@ -154,6 +154,29 @@ body {
   margin-top: -2px;
 }
 
+.progress-error {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  text-align: center;
+  padding: 6px 0;
+}
+
+.error-code {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: 0.28em;
+  color: #d10000;
+  animation: error-blink 1.1s steps(2, end) infinite;
+}
+
+.error-message {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #8a0000;
+  max-width: 32ch;
+}
+
 .boot-shell-portrait .step-index,
 .boot-shell-landscape .step-index {
   color: #0a0a0a;
@@ -234,6 +257,16 @@ body {
   }
   to {
     background-position: 200% 0;
+  }
+}
+
+@keyframes error-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
   }
 }
 

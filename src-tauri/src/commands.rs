@@ -151,7 +151,7 @@ pub fn run_startup_flow_cmd(app: AppHandle, state: State<IrisState>) -> Result<S
         steps.push(StartupStep {
             name: "验证机台授权状态".to_string(),
             status: "error".to_string(),
-            detail: Some("设备未授权".to_string()),
+            detail: Some("机台未授权".to_string()),
         });
         push_skip(&mut steps, "检查机台更新", "已中断");
         push_skip(&mut steps, "确认启动配置", "已中断");

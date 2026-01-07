@@ -26,6 +26,15 @@ const BOOT_STEPS: UiStep[] = STEP_KEYS.map((key) => ({
   status: "pending"
 }));
 
+const ERROR_CODES: Record<string, string> = {
+  "steps.auth": "0001",
+  "steps.update": "0002",
+  "steps.confirm": "0003",
+  "steps.decrypt": "0004",
+  "steps.mount": "0005",
+  "steps.launch": "0006"
+};
+
 function normalizeStep(fallback: UiStep, step: StartupStep | undefined): UiStep {
   if (!step) {
     return { ...fallback, status: "ok" };
@@ -192,14 +201,27 @@ export default function App() {
     }
     return Math.round((currentIndex / (steps.length - 1)) * 100);
   }, [currentIndex, steps.length]);
-  const orientationOverride =
-    typeof window !== "undefined"
-      ? new URLSearchParams(window.location.search).get("orientation")
-      : null;
+  const searchParams =
+    typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const orientationOverride = searchParams?.get("orientation") ?? null;
+  const stubErrorCode = searchParams?.get("stubError") ?? null;
+  const stubErrorMessage = searchParams?.get("stubMessage");
   const forcePortrait = orientationOverride === "portrait";
   const forceLandscape = orientationOverride !== "portrait";
   const currentStepLabel = currentStep ? t(currentStep.key) : statusText;
   const currentDetail = currentStep?.detail ?? (booting ? currentStepLabel : statusText);
+  const errorStep = steps.find((step) => step.status === "error") ?? null;
+  const errorCode = errorStep
+    ? ERROR_CODES[errorStep.key] ?? "0000"
+    : bootError
+      ? "0000"
+      : null;
+  const errorMessage = errorStep?.detail ?? bootError ?? t("status.failed");
+  const resolvedErrorCode = stubErrorCode ?? errorCode;
+  const resolvedErrorMessage = stubErrorCode
+    ? stubErrorMessage ?? "\u673a\u53f0\u672a\u6388\u6743"
+    : errorMessage;
+  const showError = resolvedErrorCode !== null;
 
   return (
     <div
@@ -224,13 +246,22 @@ export default function App() {
             </div>
 
             <div className="progress progress-portrait">
-              <div className="progress-track">
-                <div className="progress-fill" style={{ width: `${progressPercent}%` }} />
-              </div>
-              <div className="progress-meta">
-                <span>{progressPercent}%</span>
-                <span>{currentDetail}</span>
-              </div>
+              {showError ? (
+                <div className="progress-error">
+                  <div className="error-code">ERROR {resolvedErrorCode ?? "0000"}</div>
+                  <div className="error-message">{resolvedErrorMessage}</div>
+                </div>
+              ) : (
+                <>
+                  <div className="progress-track">
+                    <div className="progress-fill" style={{ width: `${progressPercent}%` }} />
+                  </div>
+                  <div className="progress-meta">
+                    <span>{progressPercent}%</span>
+                    <span>{currentDetail}</span>
+                  </div>
+                </>
+              )}
             </div>
 
             {bootError && <div className="boot-error">{bootError}</div>}
@@ -251,13 +282,22 @@ export default function App() {
           </div>
 
           <div className="progress">
-            <div className="progress-track">
-              <div className="progress-fill" style={{ width: `${progressPercent}%` }} />
-            </div>
-            <div className="progress-meta">
-              <span>{progressPercent}%</span>
-              <span>{currentDetail}</span>
-            </div>
+            {showError ? (
+              <div className="progress-error">
+                <div className="error-code">ERROR {resolvedErrorCode ?? "0000"}</div>
+                <div className="error-message">{resolvedErrorMessage}</div>
+              </div>
+            ) : (
+              <>
+                <div className="progress-track">
+                  <div className="progress-fill" style={{ width: `${progressPercent}%` }} />
+                </div>
+                <div className="progress-meta">
+                  <span>{progressPercent}%</span>
+                  <span>{currentDetail}</span>
+                </div>
+              </>
+            )}
           </div>
 
           {bootError && <div className="boot-error">{bootError}</div>}
