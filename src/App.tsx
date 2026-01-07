@@ -1,26 +1,27 @@
 ﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { useTranslation } from "react-i18next";
 import { invokeCmd } from "./api/tauri";
 import type { StartupResult, StartupStep } from "./types/iris";
 
 type StepStatus = "pending" | "running" | "ok" | "warning" | "error" | "skipped";
 
 type UiStep = {
-  name: string;
+  key: string;
   status: StepStatus;
   detail?: string | null;
 };
 
-const STEP_NAMES = [
-  "验证机台授权状态",
-  "检查机台更新",
-  "确认启动配置",
-  "解密挂载游戏 VHD",
-  "启动游戏"
+const STEP_KEYS = [
+  "steps.auth",
+  "steps.update",
+  "steps.confirm",
+  "steps.vhd",
+  "steps.launch"
 ];
 
-const BOOT_STEPS: UiStep[] = STEP_NAMES.map((name) => ({
-  name,
+const BOOT_STEPS: UiStep[] = STEP_KEYS.map((key) => ({
+  key,
   status: "pending"
 }));
 
@@ -29,7 +30,7 @@ function normalizeStep(fallback: UiStep, step: StartupStep | undefined): UiStep 
     return { ...fallback, status: "ok" };
   }
   return {
-    name: fallback.name,
+    key: fallback.key,
     status: (step.status as StepStatus) ?? "ok",
     detail: step.detail ?? null
   };
@@ -48,12 +49,19 @@ function resolveCurrentIndex(steps: UiStep[]) {
 }
 
 export default function App() {
+  const { t, i18n } = useTranslation();
   const [steps, setSteps] = useState<UiStep[]>(BOOT_STEPS);
-  const [statusText, setStatusText] = useState("准备启动");
+  const [statusText, setStatusText] = useState(t("status.ready"));
   const [bootError, setBootError] = useState<string | null>(null);
   const [booting, setBooting] = useState(true);
   const intervalRef = useRef<number | null>(null);
   const indexRef = useRef(0);
+  const pendingResultRef = useRef<StartupResult | null>(null);
+  const pendingErrorRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    setStatusText(t("status.ready"));
+  }, [i18n.language, t]);
 
   useEffect(() => {
     const init = async () => {
@@ -62,7 +70,7 @@ export default function App() {
       } catch {
         // Ignore fullscreen failures in dev.
       }
-      await startBoot();
+      startBoot();
     };
 
     init();
@@ -74,7 +82,57 @@ export default function App() {
     };
   }, []);
 
+  const applyFinalResult = () => {
+    if (intervalRef.current) {
+      window.clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    if (pendingErrorRef.current) {
+      const message = pendingErrorRef.current;
+      setBootError(message);
+      setStatusText(t("status.failed"));
+      setSteps((prev) =>
+        prev.map((step, index) =>
+          index === prev.length - 1
+            ? { ...step, status: "error", detail: t("status.failed") }
+            : { ...step, status: "warning" }
+        )
+      );
+      setBooting(false);
+      return;
+    }
+
+    const result = pendingResultRef.current;
+    if (!result) {
+      return;
+    }
+
+    const finalSteps = BOOT_STEPS.map((step, index) =>
+      normalizeStep(step, result.steps?.[index])
+    );
+    setSteps(finalSteps);
+    const hasError = finalSteps.some((step) => step.status === "error");
+    setStatusText(hasError ? t("status.failed") : t("status.done"));
+    setBooting(false);
+  };
+
   const applyStubProgress = () => {
+    if (indexRef.current >= BOOT_STEPS.length) {
+      setSteps((prev) =>
+        prev.map((step, index) =>
+          index < BOOT_STEPS.length - 1
+            ? { ...step, status: "ok" }
+            : { ...step, status: "running" }
+        )
+      );
+      setStatusText(t("status.finishing"));
+      if (pendingResultRef.current || pendingErrorRef.current) {
+        applyFinalResult();
+      }
+      return;
+    }
+
     setSteps((prev) =>
       prev.map((step, index) => {
         if (index < indexRef.current) {
@@ -87,48 +145,42 @@ export default function App() {
       })
     );
 
-    setStatusText(STEP_NAMES[indexRef.current] ?? "执行中");
+    const stepLabel = STEP_KEYS[indexRef.current]
+      ? t(STEP_KEYS[indexRef.current])
+      : t("status.working");
+    setStatusText(stepLabel);
 
-    if (indexRef.current < BOOT_STEPS.length - 1) {
+    if (indexRef.current < BOOT_STEPS.length) {
       indexRef.current += 1;
     }
   };
 
-  const startBoot = async () => {
+  const startBoot = () => {
     setBooting(true);
     setBootError(null);
     setSteps(BOOT_STEPS);
+    setStatusText(t("status.ready"));
     indexRef.current = 0;
+    pendingResultRef.current = null;
+    pendingErrorRef.current = null;
+
     applyStubProgress();
     intervalRef.current = window.setInterval(applyStubProgress, 5000);
 
-    try {
-      const result = await invokeCmd<StartupResult>("run_startup_flow_cmd");
-      if (intervalRef.current) {
-        window.clearInterval(intervalRef.current);
+    const runFlow = async () => {
+      try {
+        const result = await invokeCmd<StartupResult>("run_startup_flow_cmd");
+        pendingResultRef.current = result;
+      } catch (err) {
+        pendingErrorRef.current = err instanceof Error ? err.message : t("status.failed");
       }
-      const finalSteps = BOOT_STEPS.map((step, index) =>
-        normalizeStep(step, result.steps?.[index])
-      );
-      setSteps(finalSteps);
-      const hasError = finalSteps.some((step) => step.status === "error");
-      setStatusText(hasError ? "启动失败" : "启动完成");
-    } catch (err) {
-      if (intervalRef.current) {
-        window.clearInterval(intervalRef.current);
+
+      if (indexRef.current >= BOOT_STEPS.length) {
+        applyFinalResult();
       }
-      setBootError(err instanceof Error ? err.message : "启动失败");
-      setStatusText("启动失败");
-      setSteps((prev) =>
-        prev.map((step, index) =>
-          index === prev.length - 1
-            ? { ...step, status: "error", detail: "启动失败" }
-            : { ...step, status: "warning" }
-        )
-      );
-    } finally {
-      setBooting(false);
-    }
+    };
+
+    void runFlow();
   };
 
   const currentIndex = useMemo(() => resolveCurrentIndex(steps), [steps]);
@@ -145,8 +197,8 @@ export default function App() {
       <div className="boot-shell-portrait">
         <div className="boot-top">
           <div>
-            <div className="boot-brand">IRIS</div>
-            <div className="boot-tag">RINZ ARCADE SYSTEM</div>
+            <div className="boot-brand">{t("brand.title")}</div>
+            <div className="boot-tag">{t("brand.tag")}</div>
           </div>
         </div>
 
@@ -156,8 +208,10 @@ export default function App() {
             <img className="logo" src="/rinz.svg" alt="RinZ" />
 
             <div className="step-focus">
-              <div className="step-index">STEP {currentIndex + 1}</div>
-              <div className="step-title">{currentStep?.name ?? statusText}</div>
+              <div className="step-index">{t("status.stepLabel", { index: currentIndex + 1 })}</div>
+              <div className="step-title">
+                {currentStep ? t(currentStep.key) : statusText}
+              </div>
             </div>
 
             <div className="progress">
@@ -171,7 +225,7 @@ export default function App() {
             </div>
 
             {bootError && <div className="boot-error">{bootError}</div>}
-            {!booting && !bootError && <div className="boot-done">待机中</div>}
+            {!booting && !bootError && <div className="boot-done">{t("status.idle")}</div>}
           </div>
         </div>
       </div>
@@ -181,14 +235,16 @@ export default function App() {
           <div className="landscape-brand-row">
             <img className="logo logo-landscape" src="/rinz.svg" alt="RinZ" />
             <div>
-              <div className="landscape-title">IRIS</div>
-              <div className="landscape-tag">RINZ ARCADE SYSTEM</div>
+              <div className="landscape-title">{t("brand.title")}</div>
+              <div className="landscape-tag">{t("brand.tag")}</div>
             </div>
           </div>
 
           <div className="step-focus">
-            <div className="step-index">STEP {currentIndex + 1}</div>
-            <div className="step-title">{currentStep?.name ?? statusText}</div>
+            <div className="step-index">{t("status.stepLabel", { index: currentIndex + 1 })}</div>
+            <div className="step-title">
+              {currentStep ? t(currentStep.key) : statusText}
+            </div>
           </div>
 
           <div className="progress">
@@ -202,7 +258,7 @@ export default function App() {
           </div>
 
           {bootError && <div className="boot-error">{bootError}</div>}
-          {!booting && !bootError && <div className="boot-done">待机中</div>}
+          {!booting && !bootError && <div className="boot-done">{t("status.idle")}</div>}
         </div>
       </div>
     </div>
