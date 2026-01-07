@@ -196,12 +196,15 @@ export default function App() {
     typeof window !== "undefined"
       ? new URLSearchParams(window.location.search).get("orientation")
       : null;
-  const forcePortrait = orientationOverride !== "portrait";
+  const forcePortrait = orientationOverride === "portrait";
+  const forceLandscape = orientationOverride !== "portrait";
   const currentStepLabel = currentStep ? t(currentStep.key) : statusText;
   const currentDetail = currentStep?.detail ?? (booting ? currentStepLabel : statusText);
 
   return (
-    <div className={`boot-shell${forcePortrait ? " force-portrait" : ""}`}>
+    <div
+      className={`boot-shell${forcePortrait ? " force-portrait" : ""}${forceLandscape ? " force-landscape" : ""}`}
+    >
       <div className="boot-shell-portrait">
         <div className="boot-top">
           <div>
@@ -240,10 +243,6 @@ export default function App() {
         <div className="landscape-card">
           <div className="landscape-brand-row">
             <img className="logo logo-landscape" src="/rinz.svg" alt="RinZ" />
-            <div>
-              <div className="landscape-title">{t("brand.title")}</div>
-              <div className="landscape-tag">{t("brand.tag")}</div>
-            </div>
           </div>
 
           <div className="step-focus">
