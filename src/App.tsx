@@ -35,6 +35,22 @@ const ERROR_CODES: Record<string, string> = {
   "steps.launch": "0006"
 };
 
+const ERROR_MESSAGE_KEYS: Record<string, string> = {
+  "steps.auth": "errors.machineUnauthorized",
+  "steps.update": "errors.generic",
+  "steps.confirm": "errors.generic",
+  "steps.decrypt": "errors.generic",
+  "steps.mount": "errors.generic",
+  "steps.launch": "errors.generic"
+};
+
+const ERROR_MESSAGE_KEYS_BY_CODE: Record<string, string> = {
+  "0001": "errors.machineUnauthorized",
+  "0010": "errors.unexpectedGameFailure",
+  "5858": "errors.bannedUser",
+  "6000": "errors.incompatibleInputDevice",
+};
+
 function normalizeStep(fallback: UiStep, step: StartupStep | undefined): UiStep {
   if (!step) {
     return { ...fallback, status: "ok" };
@@ -205,7 +221,6 @@ export default function App() {
     typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
   const orientationOverride = searchParams?.get("orientation") ?? null;
   const stubErrorCode = searchParams?.get("stubError") ?? null;
-  const stubErrorMessage = searchParams?.get("stubMessage");
   const forcePortrait = orientationOverride === "portrait";
   const forceLandscape = orientationOverride !== "portrait";
   const currentStepLabel = currentStep ? t(currentStep.key) : statusText;
@@ -216,11 +231,16 @@ export default function App() {
     : bootError
       ? "0000"
       : null;
-  const errorMessage = errorStep?.detail ?? bootError ?? t("status.failed");
+  const errorMessageKey = errorStep
+    ? ERROR_MESSAGE_KEYS[errorStep.key] ?? "errors.generic"
+    : bootError
+      ? "errors.generic"
+      : null;
   const resolvedErrorCode = stubErrorCode ?? errorCode;
-  const resolvedErrorMessage = stubErrorCode
-    ? stubErrorMessage ?? "\u673a\u53f0\u672a\u6388\u6743"
-    : errorMessage;
+  const resolvedErrorMessageKey = stubErrorCode
+    ? ERROR_MESSAGE_KEYS_BY_CODE[stubErrorCode] ?? "errors.generic"
+    : errorMessageKey;
+  const resolvedErrorMessage = resolvedErrorMessageKey ? t(resolvedErrorMessageKey) : "";
   const showError = resolvedErrorCode !== null;
 
   return (
@@ -240,10 +260,14 @@ export default function App() {
           <div className="boot-content">
             <img className="logo" src="/rinz.svg" alt="RinZ" />
 
-            <div className="step-focus">
-              <div className="step-index">{t("status.stepLabel", { index: currentIndex + 1 })}</div>
-              <div className="step-title">{currentStepLabel}</div>
-            </div>
+            {!showError && (
+              <div className="step-focus">
+                <div className="step-index">
+                  {t("status.stepLabel", { index: currentIndex + 1 })}
+                </div>
+                <div className="step-title">{currentStepLabel}</div>
+              </div>
+            )}
 
             <div className="progress progress-portrait">
               {showError ? (
@@ -276,10 +300,14 @@ export default function App() {
             <img className="logo logo-landscape" src="/rinz.svg" alt="RinZ" />
           </div>
 
-          <div className="step-focus">
-            <div className="step-index">{t("status.stepLabel", { index: currentIndex + 1 })}</div>
-            <div className="step-title">{currentStepLabel}</div>
-          </div>
+          {!showError && (
+            <div className="step-focus">
+              <div className="step-index">
+                {t("status.stepLabel", { index: currentIndex + 1 })}
+              </div>
+              <div className="step-title">{currentStepLabel}</div>
+            </div>
+          )}
 
           <div className="progress">
             {showError ? (

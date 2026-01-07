@@ -36,6 +36,14 @@ i18n
             failed: "启动失败",
             done: "启动完成",
             idle: "待机中"
+          },
+          errors: {
+            machineUnauthorized: "机台未授权",
+            unexpectedGameFailure: "无法预计的游戏程序失败",
+            bannedUser: "被封禁的用户",
+            smgunge: "检测到 SMGUNGE",
+            incompatibleInputDevice: "不兼容的输入设备",
+            generic: "启动失败"
           }
         }
       },
@@ -61,6 +69,13 @@ i18n
             failed: "Boot failed",
             done: "Boot complete",
             idle: "Idle"
+          },
+          errors: {
+            machineUnauthorized: "Machine unauthorized",
+            unexpectedGameFailure: "Unexpected game failure",
+            bannedUser: "Banned User",
+            incompatibleInputDevice: "Incompatible input device",
+            generic: "Boot failed"
           }
         }
       }
