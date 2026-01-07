@@ -196,7 +196,7 @@ export default function App() {
     typeof window !== "undefined"
       ? new URLSearchParams(window.location.search).get("orientation")
       : null;
-  const forcePortrait = orientationOverride !== "landscape";
+  const forcePortrait = orientationOverride !== "portrait";
   const currentStepLabel = currentStep ? t(currentStep.key) : statusText;
   const currentDetail = currentStep?.detail ?? (booting ? currentStepLabel : statusText);
 
