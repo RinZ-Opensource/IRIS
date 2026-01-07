@@ -117,7 +117,7 @@ body {
 }
 
 .logo {
-  width: 220px;
+  width: 280px;
   height: auto;
   filter: drop-shadow(0 18px 32px rgba(255, 255, 255, 0.25));
 }
@@ -161,23 +161,25 @@ body {
 }
 
 .boot-shell-portrait .progress-track {
-  border: 1px solid rgba(0, 0, 0, 0.35);
-  background: rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  background: rgba(0, 0, 0, 0.03);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .boot-shell-portrait .progress-track::after {
   background: linear-gradient(
     110deg,
     transparent 0%,
-    rgba(0, 0, 0, 0.2) 45%,
+    rgba(0, 0, 0, 0.1) 45%,
     transparent 70%
   );
-  opacity: 0.35;
+  background-size: 200% 100%;
+  opacity: 1;
 }
 
 .boot-shell-portrait .progress-fill {
-  background: linear-gradient(90deg, #0a0a0a 0%, #2b2b2b 60%, #0a0a0a 100%);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+  background: linear-gradient(90deg, #1a1a1a 0%, #3a3a3a 50%, #1a1a1a 100%);
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
 }
 
 .progress-track {
