@@ -31,7 +31,7 @@ const ERROR_CODES: Record<string, string> = {
   "steps.update": "0002",
   "steps.confirm": "0003",
   "steps.decrypt": "0004",
-  "steps.mount": "0005",
+  "steps.mount": "0082",
   "steps.launch": "0006"
 };
 
@@ -50,6 +50,26 @@ const ERROR_MESSAGE_KEYS_BY_CODE: Record<string, string> = {
   "5858": "errors.bannedUser",
   "6000": "errors.incompatibleInputDevice",
 };
+
+const GAME_NOT_FOUND_HINTS = [
+  "no active game selected",
+  "active game not found"
+];
+
+function isGameNotFound(detail?: string | null) {
+  if (!detail) {
+    return false;
+  }
+  const normalized = detail.toLowerCase();
+  return GAME_NOT_FOUND_HINTS.some((hint) => normalized.includes(hint));
+}
+
+function resolveErrorCode(errorStep: UiStep) {
+  if (errorStep.key === "steps.mount") {
+    return isGameNotFound(errorStep.detail) ? "0022" : "0082";
+  }
+  return ERROR_CODES[errorStep.key] ?? "0000";
+}
 
 function normalizeStep(fallback: UiStep, step: StartupStep | undefined): UiStep {
   if (!step) {
@@ -227,7 +247,7 @@ export default function App() {
   const currentDetail = currentStep?.detail ?? (booting ? currentStepLabel : statusText);
   const errorStep = steps.find((step) => step.status === "error") ?? null;
   const errorCode = errorStep
-    ? ERROR_CODES[errorStep.key] ?? "0000"
+    ? resolveErrorCode(errorStep)
     : bootError
       ? "0000"
       : null;
