@@ -37,16 +37,23 @@ const ERROR_CODES: Record<string, string> = {
 
 const ERROR_MESSAGE_KEYS: Record<string, string> = {
   "steps.auth": "errors.machineUnauthorized",
-  "steps.update": "errors.generic",
-  "steps.confirm": "errors.generic",
-  "steps.decrypt": "errors.generic",
-  "steps.mount": "errors.generic",
-  "steps.launch": "errors.generic"
+  "steps.update": "errors.updateUnavailable",
+  "steps.confirm": "errors.confirmRequired",
+  "steps.decrypt": "errors.decryptFailed",
+  "steps.mount": "errors.mountFailed",
+  "steps.launch": "errors.launchFailed"
 };
 
 const ERROR_MESSAGE_KEYS_BY_CODE: Record<string, string> = {
   "0001": "errors.machineUnauthorized",
+  "0002": "errors.updateUnavailable",
+  "0003": "errors.confirmRequired",
+  "0004": "errors.decryptFailed",
+  "0005": "errors.mountFailed",
+  "0006": "errors.launchFailed",
   "0010": "errors.unexpectedGameFailure",
+  "0022": "errors.gameNotFound",
+  "0082": "errors.mountFailed",
   "5858": "errors.bannedUser",
   "6000": "errors.incompatibleInputDevice",
 };
@@ -252,7 +259,11 @@ export default function App() {
       ? "0000"
       : null;
   const errorMessageKey = errorStep
-    ? ERROR_MESSAGE_KEYS[errorStep.key] ?? "errors.generic"
+    ? (errorCode
+      ? ERROR_MESSAGE_KEYS_BY_CODE[errorCode] ??
+        ERROR_MESSAGE_KEYS[errorStep.key] ??
+        "errors.generic"
+      : ERROR_MESSAGE_KEYS[errorStep.key] ?? "errors.generic")
     : bootError
       ? "errors.generic"
       : null;
